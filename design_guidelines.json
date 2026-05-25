@@ -1,0 +1,218 @@
+{
+  "app_name": "Queda",
+  "theme_archetype": "Archetype 1 (Organic & Earthy / Calm Finance) - Tailored for Premium Mobile UI",
+  "theme": "light",
+  "colors": {
+    "background": {
+      "main": "#FFFFFF",
+      "card": "#F8FAFC",
+      "envelope_surface": "#F1F5F9"
+    },
+    "text": {
+      "primary": "#0B192C",
+      "secondary": "#64748B",
+      "tertiary": "#94A3B8"
+    },
+    "brand": {
+      "primary": "#0B192C",
+      "soft_blue": "#3B82F6",
+      "soft_blue_light": "#EFF6FF"
+    },
+    "status": {
+      "safe_green": "#10B981",
+      "safe_green_bg": "#ECFDF5",
+      "careful_amber": "#F59E0B",
+      "careful_amber_bg": "#FFFBEB",
+      "risk_coral": "#EF4444",
+      "risk_coral_bg": "#FEF2F2"
+    },
+    "warm_accents": {
+      "orange": "#F97316",
+      "peach": "#FFEDD5"
+    }
+  },
+  "typography": {
+    "font_families": {
+      "heading": "Outfit",
+      "body": "DM Sans"
+    },
+    "scale": {
+      "hero_number": {
+        "size": 60,
+        "line_height": 68,
+        "weight": "700",
+        "letter_spacing": -1.5,
+        "color": "#0B192C"
+      },
+      "h1": {
+        "size": 32,
+        "line_height": 40,
+        "weight": "700",
+        "letter_spacing": -0.5
+      },
+      "h2": {
+        "size": 24,
+        "line_height": 32,
+        "weight": "600",
+        "letter_spacing": -0.3
+      },
+      "h3": {
+        "size": 20,
+        "line_height": 28,
+        "weight": "600"
+      },
+      "body_large": {
+        "size": 18,
+        "line_height": 26,
+        "weight": "400"
+      },
+      "body": {
+        "size": 16,
+        "line_height": 24,
+        "weight": "400"
+      },
+      "label": {
+        "size": 14,
+        "line_height": 20,
+        "weight": "500"
+      },
+      "micro": {
+        "size": 12,
+        "line_height": 16,
+        "weight": "500",
+        "letter_spacing": 0.5,
+        "text_transform": "uppercase"
+      }
+    }
+  },
+  "spacing_and_layout": {
+    "screen_padding": 24,
+    "card_padding": 20,
+    "border_radius": {
+      "sm": 8,
+      "md": 16,
+      "lg": 24,
+      "pill": 9999
+    },
+    "gap": {
+      "xs": 4,
+      "sm": 8,
+      "md": 16,
+      "lg": 24,
+      "xl": 32,
+      "xxl": 48
+    },
+    "shadows": {
+      "soft": "shadow-color: #0B192C; shadow-offset: {width: 0, height: 4}; shadow-opacity: 0.05; shadow-radius: 12; elevation: 2",
+      "floating": "shadow-color: #0B192C; shadow-offset: {width: 0, height: 8}; shadow-opacity: 0.08; shadow-radius: 24; elevation: 4"
+    }
+  },
+  "component_patterns": {
+    "hero_safe_spend": {
+      "description": "The most important element of the app. Placed at the top of the Home screen.",
+      "layout": "Centered vertically and horizontally within its container.",
+      "label": "Puedes gastar hoy",
+      "font_size": "hero_number scale",
+      "animation": "react-native-reanimated for smooth number incrementing on load",
+      "status_integration": "Background tint of the hero container changes subtly based on status (e.g., safe_green_bg if 'Vas bien')."
+    },
+    "status_pill": {
+      "description": "Green/Amber/Red indicator pill underneath the main number.",
+      "shape": "Pill (radius: 9999)",
+      "padding": "px-16 py-8",
+      "icon": "Feather icons (Check, AlertCircle, XOctagon)",
+      "text": "Vas bien / Cuidado / Riesgo / Mejor espera"
+    },
+    "primary_button": {
+      "background_color": "#0B192C",
+      "text_color": "#FFFFFF",
+      "border_radius": 16,
+      "height": 56,
+      "typography": "label",
+      "interaction": "Scale down slightly on active press using Reanimated"
+    },
+    "quick_action_fab_row": {
+      "description": "Row of 4 circular buttons underneath the hero section for quick actions.",
+      "shape": "Circle (width/height: 56)",
+      "background": "#F8FAFC",
+      "icon_color": "#3B82F6",
+      "shadow": "soft"
+    },
+    "bottom_tab_bar": {
+      "background": "#FFFFFF",
+      "active_tint": "#0B192C",
+      "inactive_tint": "#94A3B8",
+      "border_top_width": 0,
+      "shadow": "floating",
+      "labels": ["Inicio", "Gastos", "Calendario", "Sobres", "Premium"]
+    },
+    "can_i_buy_this_simulator": {
+      "type": "Modal / Bottom Sheet",
+      "interaction": "User inputs price. App calculates impact. Screen turns soft green/amber/coral based on result.",
+      "result_cards": "Rounded cards explaining impact on days remaining."
+    }
+  },
+  "screens": [
+    {
+      "name": "Onboarding (3 screens)",
+      "layout": "Hero image at top (60% height). Title, description, and dots pagination below. Primary button at bottom.",
+      "images": ["onboarding_1_calm", "onboarding_2_safe", "premium_paywall_hero"]
+    },
+    {
+      "name": "Setup Wizard",
+      "layout": "Step-by-step full screen cards. Progress bar at top. Very clean, avoiding overwhelming forms."
+    },
+    {
+      "name": "Home (Inicio)",
+      "priority": "Highest",
+      "layout": "Top: Greeting + Avatar. Middle: Massive 'Puedes gastar hoy' number + Status Pill + Cycle progress bar. Bottom: Quick action buttons row. Very bottom: Upcoming payments snippet list. Clean white background."
+    },
+    {
+      "name": "Can I Buy This? (Simulator)",
+      "layout": "Large numeric keypad, floating input field. Results displayed in a bottom sheet with clear safe/careful/not recommended status."
+    },
+    {
+      "name": "Expenses (Gastos)",
+      "layout": "List view with categorized grouped dates. Icons mapped to categories (Food, Transport, etc.) with soft colored backgrounds."
+    },
+    {
+      "name": "Calendar (Calendario)",
+      "layout": "Monthly grid view. Paydays marked with green dots. Bills marked with red/amber dots. Tapping a day shows safe spend for that specific day."
+    },
+    {
+      "name": "Envelopes (Sobres)",
+      "layout": "Bento grid of rounded cards representing envelopes. Each card has a different pastel background (soft green, soft blue, peach) and progress bar."
+    },
+    {
+      "name": "Premium Paywall",
+      "layout": "Luxurious feel. Deep Navy background for this specific screen to contrast. 3D geometric hero image. Comparison table (Free, Pro, Plus) with gold/soft blue highlights. Large compelling CTA."
+    }
+  ],
+  "image_urls": {
+    "onboarding_1_calm": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/26770b53-a40a-4517-8bf7-8b9fad38fed9/images/1f9a470d93faf064cc2335806f83fb9370e3f8d29a920374694ad9c667a76ba2.png",
+      "description": "Minimalist 3D abstract illustration of a glowing soft green coin gently floating. Use for Onboarding Screen 1.",
+      "category": "onboarding"
+    },
+    "onboarding_2_safe": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/26770b53-a40a-4517-8bf7-8b9fad38fed9/images/5f5b5770533751f63788b72e07f9073aaf275e3c567f4e901dc5d2e936b96216.png",
+      "description": "Minimalist 3D abstract illustration of a soft blue protective shield. Use for Onboarding Screen 2 or Simulator success.",
+      "category": "onboarding"
+    },
+    "premium_paywall_hero": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/26770b53-a40a-4517-8bf7-8b9fad38fed9/images/fcdbb30b97599d2a1ecf54a21c83a500e5e1b02a58e4c5a67e076f4097fbe0f4.png",
+      "description": "Premium abstract 3D composition with geometric shapes. Use as header graphic for the Premium Paywall screen.",
+      "category": "premium"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Use standard JS files for the React Native/Expo app, not TSX. Follow pure functional component patterns.",
+    "Install and configure @expo-google-fonts/outfit and @expo-google-fonts/dmsans.",
+    "Use react-native-reanimated for smooth number counting in the Hero component and subtle layout transitions.",
+    "Apply `data-testid` attributes to all touchables, buttons, and text inputs using kebab-case role-based names (e.g., `data-testid=\"home-safe-spend-number\"`).",
+    "Ensure 'Puedes gastar hoy' number is the largest text element in the app, using the specific scale mapped in typography.",
+    "Use `@expo/vector-icons` for category and tab bar icons; avoid native emojis.",
+    "Ensure the UI uses high padding (e.g., padding: 24) to maintain the premium, uncluttered aesthetic.",
+    "Do not use dark mode globally. Enforce light mode strictly to preserve the white/navy/soft green premium aesthetic."
+  ]
+}
