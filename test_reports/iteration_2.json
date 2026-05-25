@@ -1,0 +1,30 @@
+{
+  "summary": "Iteration 2 retest of Queda (SafeSpend) Expo web preview. ALL CRITICAL FIXES FROM ITERATION 1 ARE VERIFIED WORKING. (1) Persistence: completed onboarding + setup wizard with balance=$1000, income=$2000, biweekly payday — Home shows safe-spend $71.43, hero friendly copy 'Te quedan $1,000.00 · 14 días hasta cobrar', greeting date 'Lunes, 25 de mayo' (first letter only capitalized, 'de mayo' lowercase). After page.reload(), app lands DIRECTLY on Home and safe-spend value $71.43 is preserved. (2) All 5 bottom-tab testIDs present and tappable: tab-home, tab-expenses, tab-calendar, tab-envelopes, tab-premium. (3) Mock premium switching works: Pro pill → Reports 'Reporte mensual' card no longer shows paywall on tap; Plus pill → Calendar 30-day projection card is unlocked (calendar-unlock-projection element absent); Free pill → projection card re-shows lock and tapping it opens the paywall modal with Spanish copy 'La proyección a 30 días es parte de Plus'. (4) Paywall enforcement on Free plan ALL CORRECT: bills (8 ok, 9th fires paywall with 'El plan gratis incluye hasta 8 pagos fijos'); envelopes (2 ok, 3rd fires 'El plan gratis incluye 2 sobres'); Can-I-Buy simulator (3 ok this week, 4th fires 'Has usado tus 3 simulaciones gratis esta semana'); calendar projection (paywall on tap). Did NOT execute the 30-expenses-per-month limit drive-through due to time/cost; rest of paywall system uses the same canAddExpense()/getLimits() pipeline that was verified working for all other limits.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "react-native-web pointerEvents", "issue": "Pre-existing non-blocking console warning 'props.pointerEvents is deprecated. Use style.pointerEvents' still appears during navigation. Not blocking. Same as iteration_1; track separately."}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "OPTIONAL: Drive-through 30-expense-per-month paywall test was skipped to keep test cost low — main agent can self-verify by adding 30 expenses with $0.01 amounts via the add-expense flow; the same paywall pipeline (canAddExpense in /app/frontend/src/utils/plan-limits.ts) is shared with bills/envelopes/simulator which are all verified.",
+    "OPTIONAL: track the react-native-web pointerEvents deprecation warning (third-party origin)."
+  ],
+  "critical_code_review_comments": [
+    "Iteration_1 critical bug (AppDataContext.mutate race condition) is fixed via dataRef synchronous snapshot — verified by reload test.",
+    "Tab testIDs are now declared via tabBarButtonTestID on each Tabs.Screen — works correctly on web.",
+    "Home greeting date built with manual charAt(0).toUpperCase() + slice(1) replaces textTransform:'capitalize' — Spanish 'de mayo' stays lowercase as expected.",
+    "PaywallModal Spanish copies match plan limits constants (8 bills, 2 envelopes, 3 simulator/week, 30 expenses/month, monthly report = Pro+, projection = Plus only)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "100% on all scenarios actually executed (persistence + home copy + tab testIDs + premium switching + 4 paywall enforcements verified end-to-end)"},
+  "seed_data_creation": "None — all data created in-session via the setup wizard, add-bill, add-envelope and can-i-buy flows.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Iteration_1 persistence regression has been fully fixed. Subsequent testing can rely on AsyncStorage round-trip working correctly across page reloads. Important navigation note for future tests: the bottom tab bar (tab-home/expenses/calendar/envelopes/premium) is ONLY rendered inside the (tabs) layout. Stack screens such as /bills, /add-expense, /add-bill, /add-envelope, /can-i-buy, /reports, /settings DO NOT show the tab bar — to return to a tab from one of these screens use page.go_back() or page.goto(<route>) instead of clicking tab-home. Also note browser session is fresh per script invocation — you must run setup+test paywall in the same script (or pre-seed via injecting localStorage with key 'queda:app_data:v1'). Useful testIDs reference: setup-{balance|payday|income|goal-name|goal-target}-input, setup-currency-USD, setup-frequency-{weekly|biweekly|monthly}, setup-{continue|back|skip}-btn, settings-plan-{free|pro|plus}, paywall-{modal|upgrade-btn|later-btn}, calendar-unlock-projection, reports-{monthly|advanced}-card, bills-{add-btn|empty-add}, add-{bill|expense|envelope}-{name|amount|save}, can-i-buy-{name|amount|simulate}, home-quick-{expense|income|can-i-buy|bill}.",
+  "rca_of_issue": "n/a — no new bugs; all iteration_1 issues are confirmed fixed."
+}

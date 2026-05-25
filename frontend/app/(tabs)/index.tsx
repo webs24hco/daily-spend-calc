@@ -56,7 +56,7 @@ export default function Home() {
   const friendly =
     daysLeft === 0
       ? t("home.cyclePaid")
-      : `${t("home.moneyLeft")} ${formatMoney(Math.max(available, 0), settings.mainCurrency)} ${t("home.daysLeft")} (${daysLeft})`;
+      : `${t("home.moneyLeft")} ${formatMoney(Math.max(available, 0), settings.mainCurrency)} · ${daysLeft} ${t("home.daysLeft")}`;
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]} testID="home-screen">
@@ -66,11 +66,13 @@ export default function Home() {
           <View style={{ flex: 1 }}>
             <Text style={styles.greeting}>{greeting}</Text>
             <Text style={styles.dateStr}>
-              {new Date().toLocaleDateString(settings.language === "es" ? "es-ES" : "en-US", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-              })}
+              {(() => {
+                const s = new Date().toLocaleDateString(
+                  settings.language === "es" ? "es-ES" : "en-US",
+                  { weekday: "long", day: "numeric", month: "long" },
+                );
+                return s.charAt(0).toUpperCase() + s.slice(1);
+              })()}
             </Text>
           </View>
           <Pressable
@@ -263,7 +265,6 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     fontFamily: "Outfit_700Bold",
     fontWeight: "700",
-    textTransform: "capitalize",
   },
   iconBtn: {
     width: 40,

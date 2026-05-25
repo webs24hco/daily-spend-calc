@@ -255,7 +255,6 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     fontFamily: "Outfit_700Bold",
     fontWeight: "700",
-    textTransform: "capitalize",
   },
   weekRow: {
     flexDirection: "row",
@@ -312,7 +311,6 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     fontFamily: "Outfit_700Bold",
     fontWeight: "700",
-    textTransform: "capitalize",
   },
   selectedSubtitle: {
     fontSize: 12,

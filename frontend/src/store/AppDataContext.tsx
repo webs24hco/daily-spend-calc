@@ -8,6 +8,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { STORAGE_KEYS } from "@/src/constants";
@@ -103,6 +104,10 @@ const AppDataContext = createContext<AppDataContextValue | null>(null);
 export function AppDataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(() => defaultAppData());
   const [loaded, setLoaded] = useState(false);
+  // Ref tracks the latest value synchronously so mutate() can persist without
+  // racing the async setData callback.
+  const dataRef = useRef<AppData>(data);
+  dataRef.current = data;
 
   // Load from storage on mount
   useEffect(() => {
@@ -120,6 +125,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
               parsed.simulatorUsage = { weekKey: week, count: 0 };
             }
             setData(parsed);
+            dataRef.current = parsed;
           } catch {
             // ignore parse errors, fall back to defaults
           }
@@ -138,12 +144,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const mutate = useCallback(
     async (updater: (prev: AppData) => AppData) => {
-      let next!: AppData;
-      setData((prev) => {
-        next = updater(prev);
-        return next;
-      });
-      // Persist after state update (use the computed `next` directly).
+      // Compute next synchronously from the ref to avoid React batching races.
+      const next = updater(dataRef.current);
+      dataRef.current = next;
+      setData(next);
       await persist(next);
     },
     [persist],
@@ -358,6 +362,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const resetAll = useCallback(async () => {
     const fresh = defaultAppData();
+    dataRef.current = fresh;
     setData(fresh);
     await persist(fresh);
   }, [persist]);
