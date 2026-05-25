@@ -1,0 +1,43 @@
+{
+  "summary": "Tested Queda (SafeSpend) Expo web preview end-to-end. Onboarding (3 slides Spanish, 'Calcular mi dinero seguro' CTA), setup wizard (8 steps incl. currency, bills toggle, skip on bills/goal), Home (safe-spend number, status pill, cycle progress, 4 quick actions, upcoming payments), Add-Expense (saves and reduces safe-spend from $107.14 to $103.57), Can-I-Buy (simulator with result card), Premium tab (Free/Pro/Plus with Activar/Plan actual tag), Settings (premium pills, language picker, currency, reset dialog), Calendar (month grid, prev/next, 30-day projection paywall), Envelopes (empty state with add btn), Expenses tab (filters, list, totals), and Reports — ALL render and basic interactions work. Paywall modal correctly opens on the locked Calendar projection card for Free users and disappears after activating Plus. ONE CRITICAL BUG: AsyncStorage persistence is broken — after completing setup and reloading, the app returns to /onboarding instead of /(tabs). Root cause: race condition in AppDataContext.mutate() — it awaits persist(next) before React has executed setData's updater, so `next` is undefined when persisted, writing the literal string 'undefined' to storage.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "AppDataContext.mutate", "issue": "Persistence broken: localStorage['queda:app_data:v1'] becomes the string 'undefined' after the setup wizard finishes. On reload the app re-routes to /onboarding instead of /(tabs). Reference: /app/frontend/src/store/AppDataContext.tsx:135-150. `await persist(next)` runs before React executes the setData updater that assigns `next`, so JSON.stringify(undefined) is stored.", "testID": "n/a", "priority": "CRITICAL"},
+      {"component": "Home hero friendly copy", "issue": "Concatenated Spanish copy reads awkwardly: 'Te quedan $1,500.00 días hasta cobrar (14)'. Reference: /app/frontend/app/(tabs)/index.tsx:56-59. Suggest: `${t('home.moneyLeft')} ${formatMoney(...)} · ${daysLeft} ${t('home.daysLeft')}`.", "testID": "home-safe-spend-card", "priority": "MEDIUM"},
+      {"component": "Date strings (Home greeting & Calendar header)", "issue": "textTransform: 'capitalize' applied to es-ES dates produces 'Lunes, 25 De Mayo' and 'Mayo De 2026' — Spanish prepositions like 'de' should stay lowercase. Reference: /app/frontend/app/(tabs)/index.tsx:266 (dateStr) and calendar header.", "testID": "n/a", "priority": "LOW"},
+      {"component": "Bottom Tab Bar", "issue": "Tabs (Inicio/Gastos/Calendario/Sobres/Premium) have no testID props on the tab buttons, forcing tests to use brittle text selectors. Reference: /app/frontend/app/(tabs)/_layout.tsx", "testID": "missing tab-* ids", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [
+      {"flow": "Onboarding → Setup → Home → Reload", "issue": "After completing setup the in-memory app state is correct (Home displays $107.14 safe-spend, $1500 balance) but storage saves 'undefined'. Reloading sends the user back to onboarding — onboardingCompleted/setupCompleted flags are lost.", "affected_testIDs": ["home-screen", "onboarding-screen"]}
+    ],
+    "design_issues": [
+      {"screen": "Home", "issues": ["Hero friendly line is grammatically awkward (see ui_bugs)"]},
+      {"screen": "Calendar / Home greeting", "issues": ["Capitalized 'De' inside dates ('Mayo De 2026', '25 De Mayo')"]}
+    ],
+    "react_native_issues": [
+      {"component": "react-native-web pointerEvents", "issue": "Console warning: 'props.pointerEvents is deprecated. Use style.pointerEvents'. Appears during navigation. Likely emitted by a third-party RN component using the legacy prop. Not a blocker but should be tracked."}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "FIX (CRITICAL): Make AppDataContext.mutate persist the computed next state reliably. Recommended pattern: compute next from a ref instead of via setData callback. Example: `const next = updater(dataRef.current); dataRef.current = next; setData(next); await persist(next);` This also avoids stale-state issues when several mutates fire in sequence (setup wizard finish, add-expense, premium toggle, etc.).",
+    "FIX: Reword home friendly copy or change translation key to avoid the ugly 'moneyLeft + amount + daysLeft + (n)' concatenation. Example translation key with placeholder support, or change the template to `${t('home.moneyLeft')} ${formatMoney(amount)} · ${daysLeft} ${t('home.daysLeft')}`.",
+    "FIX: Remove `textTransform: 'capitalize'` from date Text styles in (tabs)/index.tsx and the calendar header, or build the date string manually so Spanish 'de' stays lowercase.",
+    "ADD: testID props to each tab in app/(tabs)/_layout.tsx (e.g. tab-home, tab-expenses, tab-calendar, tab-envelopes, tab-premium) for stable test selectors.",
+    "INVESTIGATE: pointerEvents deprecation warning — usually fixed by upgrading the dependency emitting it (gesture-handler / safe-area / etc.) or by patching local usage."
+  ],
+  "critical_code_review_comments": [
+    "AppDataContext.mutate uses `let next!: AppData` and assigns it inside the setData callback, then immediately awaits persist(next). In React 18 setState updaters may not execute synchronously when called from async non-event code, so persist receives undefined. This is the root cause of the persistence regression.",
+    "storage.setItem internally JSON.stringifies its argument. AppDataContext.persist passes JSON.stringify(next), causing a double-stringify on disk. Works (the loader JSON.parses twice via retrieve+JSON.parse) but is wasteful; consider letting storage handle a single JSON encode.",
+    "(tabs)/_layout.tsx tabs lack testIDs — limits test stability.",
+    "Onboarding `onScroll` updates `page` but uses a captured `width` from initial mount — not a real bug on web preview but could break if window resizes."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "~88% (12/14 scenarios pass; persistence + minor copy issues fail)"},
+  "seed_data_creation": "None — all data created via in-app flows (setup wizard, add-expense, premium toggle).",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Use mobile viewport 390x844. Public URL: https://daily-spend-calc-2.preview.emergentagent.com. AsyncStorage on web is backed by localStorage (key: 'queda:app_data:v1'). Reproduce persistence bug: complete onboarding (3x onboarding-next-btn) → setup wizard (balance/currency/payday/income/frequency/bills-skip/goal-skip/done) → reload → user is back on /onboarding. Inspect localStorage to see value 'undefined'. After fix, verify reload lands directly on /(tabs) and shows persisted safe-spend number. Add-expense testIDs are `add-expense-name`, `add-expense-amount`, `add-expense-save` (no `-input`/`-btn` suffix). Can-I-Buy testIDs: `can-i-buy-name`, `can-i-buy-amount`, `can-i-buy-simulate`. Premium activation: `plan-card-pro-activate`, `plan-card-plus-activate`. Settings plan pills: `settings-plan-free|pro|plus`. Reset: `settings-reset-btn` → `confirm-dialog-confirm`. Paywall: `paywall-modal`, `paywall-upgrade-btn`, `paywall-later-btn`.",
+  "rca_of_issue": "BUG: persistence loss after reload. STEPS: complete onboarding+setup (any inputs) → reload page → app shows /onboarding again. RCA: in /app/frontend/src/store/AppDataContext.tsx the mutate() helper declares `let next!: AppData`, assigns inside the setData updater, then calls `await persist(next)`. Because setData's updater is deferred by React, `next` is still undefined when persist runs. storage.setItem(key, undefined) writes the literal string 'undefined' to localStorage. On next load the loader sees a non-null raw string `'undefined'`, JSON.parse fails (caught silently), falls back to defaults → onboarding. MITIGATION: compute next synchronously before setData using a ref (or by calling the updater on a snapshot), then setData and persist using that ref. Pseudocode in action_items above."
+}

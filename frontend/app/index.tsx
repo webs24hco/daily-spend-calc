@@ -1,30 +1,38 @@
-import { Text, View, StyleSheet, Image } from "react-native";
+// Entry router: decides where to send the user based on persisted state.
+//   - First time → /onboarding
+//   - Onboarded but not set up → /setup
+//   - Otherwise → /(tabs)
 
-const EXPO_PUBLIC_BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+import { Redirect } from "expo-router";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { colors } from "@/src/constants";
+import { useAppData } from "@/src/store/AppDataContext";
 
 export default function Index() {
-  console.log(EXPO_PUBLIC_BACKEND_URL, "EXPO_PUBLIC_BACKEND_URL");
+  const { data, loaded } = useAppData();
 
-  return (
-    <View style={styles.container}>
-      <Image
-        source={require("../assets/images/app-image.png")}
-        style={styles.image}
-      />
-    </View>
-  );
+  if (!loaded) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator color={colors.brand.primary} />
+      </View>
+    );
+  }
+
+  if (!data.settings.onboardingCompleted) {
+    return <Redirect href="/onboarding" />;
+  }
+  if (!data.settings.setupCompleted) {
+    return <Redirect href="/setup" />;
+  }
+  return <Redirect href="/(tabs)" />;
 }
 
 const styles = StyleSheet.create({
-  container: {
+  center: {
     flex: 1,
-    backgroundColor: "#0c0c0c",
     alignItems: "center",
     justifyContent: "center",
-  },
-  image: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "contain",
+    backgroundColor: colors.background.main,
   },
 });
