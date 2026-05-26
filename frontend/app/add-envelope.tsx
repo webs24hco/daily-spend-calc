@@ -14,10 +14,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "@/src/components/Button";
 import { Input } from "@/src/components/Input";
+import { PaywallModal } from "@/src/components/PaywallModal";
 import { ScreenHeader } from "@/src/components/ScreenHeader";
 import { CURRENCIES, ENVELOPE_COLORS, colors, radii, spacing } from "@/src/constants";
 import { useAppData, useT } from "@/src/store/AppDataContext";
 import { parseMoneyInput } from "@/src/utils/format";
+import { PaywallReason, canAddEnvelope } from "@/src/utils/plan-limits";
 
 export default function AddEnvelope() {
   const t = useT();
@@ -27,6 +29,7 @@ export default function AddEnvelope() {
   const [amount, setAmount] = useState("");
   const [color, setColor] = useState(ENVELOPE_COLORS[0]);
   const [error, setError] = useState<string | null>(null);
+  const [paywall, setPaywall] = useState<PaywallReason | null>(null);
 
   const onSave = async () => {
     if (!name.trim()) {
@@ -36,6 +39,11 @@ export default function AddEnvelope() {
     const amt = parseMoneyInput(amount);
     if (amt < 0) {
       setError(t("form.error.amount"));
+      return;
+    }
+    const check = canAddEnvelope(data);
+    if (!check.ok) {
+      setPaywall(check.reason);
       return;
     }
     await addEnvelope({ name: name.trim(), amountReserved: amt, color });
@@ -102,6 +110,7 @@ export default function AddEnvelope() {
           <Button testID="add-envelope-save" label={t("common.save")} onPress={onSave} />
         </View>
       </KeyboardAvoidingView>
+      <PaywallModal visible={!!paywall} reason={paywall} onClose={() => setPaywall(null)} />
     </SafeAreaView>
   );
 }
