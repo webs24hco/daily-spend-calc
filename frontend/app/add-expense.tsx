@@ -16,12 +16,14 @@ import { Button } from "@/src/components/Button";
 import { CategoryIcon } from "@/src/components/CategoryIcon";
 import { DateInput } from "@/src/components/DateInput";
 import { Input } from "@/src/components/Input";
+import { PaywallModal } from "@/src/components/PaywallModal";
 import { ScreenHeader } from "@/src/components/ScreenHeader";
 import { CURRENCIES, EXPENSE_CATEGORIES, colors, radii, spacing } from "@/src/constants";
 import { useAppData, useT } from "@/src/store/AppDataContext";
 import { ExpenseCategory } from "@/src/types";
 import { todayISO } from "@/src/utils/dates";
 import { parseMoneyInput } from "@/src/utils/format";
+import { PaywallReason, canAddExpense } from "@/src/utils/plan-limits";
 
 export default function AddExpense() {
   const t = useT();
@@ -32,6 +34,7 @@ export default function AddExpense() {
   const [category, setCategory] = useState<ExpenseCategory>("food");
   const [date, setDate] = useState(todayISO());
   const [error, setError] = useState<string | null>(null);
+  const [paywall, setPaywall] = useState<PaywallReason | null>(null);
 
   const onSave = async () => {
     const amt = parseMoneyInput(amount);
@@ -41,6 +44,11 @@ export default function AddExpense() {
     }
     if (amt <= 0) {
       setError(t("form.error.amount"));
+      return;
+    }
+    const check = canAddExpense(data);
+    if (!check.ok) {
+      setPaywall(check.reason);
       return;
     }
     if (!data.wallets[0]) return;
@@ -125,6 +133,7 @@ export default function AddExpense() {
           <Button testID="add-expense-save" label={t("common.save")} onPress={onSave} />
         </View>
       </KeyboardAvoidingView>
+      <PaywallModal visible={!!paywall} reason={paywall} onClose={() => setPaywall(null)} />
     </SafeAreaView>
   );
 }

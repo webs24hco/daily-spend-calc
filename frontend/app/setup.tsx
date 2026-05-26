@@ -22,6 +22,7 @@ import { useAppData, useT } from "@/src/store/AppDataContext";
 import { Currency, PayFrequency } from "@/src/types";
 import { addDays, addFrequency, todayISO } from "@/src/utils/dates";
 import { parseMoneyInput } from "@/src/utils/format";
+import { canAddGoal } from "@/src/utils/plan-limits";
 
 type FrequencyOption = PayFrequency;
 
@@ -123,7 +124,8 @@ export default function Setup() {
 
     // 4. Save goal
     const target = parseMoneyInput(goalTarget) || 0;
-    if (goalName.trim() && target > 0) {
+    const goalCheck = canAddGoal(data);
+    if (goalName.trim() && target > 0 && goalCheck.ok) {
       await addGoal({
         name: goalName.trim(),
         targetAmount: target,

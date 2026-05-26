@@ -1,50 +1,24 @@
-# Welcome to your Expo app 👋
+# Queda / SafeSpend (Expo React Native)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicación offline-first para control de gastos personales con límites Free/Pro/Plus mockeados en cliente.
 
-## Get started
+## Decisión sobre objetivo de ahorro en setup
 
-1. Install dependencies
+Para reducir riesgo y mantener reglas consistentes, **no** se permite crear objetivos de ahorro desde setup cuando el plan no lo permite (Free = 0 objetivos).
 
-   ```bash
-   npm install
-   ```
+- El paso de objetivo sigue siendo opcional en setup.
+- Si el usuario Free llena ese paso, el objetivo se omite silenciosamente al finalizar setup.
+- La creación de objetivos sigue disponible desde la pantalla dedicada, donde se muestra paywall cuando corresponde.
 
-2. Start the app
+Esto evita inconsistencias entre setup y el resto de flujos, sin rediseñar onboarding ni cambiar la arquitectura offline-first.
 
-   ```bash
-   npx expo start
-   ```
+## Critical QA checklist
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+1. Fresh install → onboarding → setup → home.
+2. Add 30 expenses on Free, verify the 31st is blocked from both Expenses tab and direct add screen.
+3. Add 8 bills on Free, verify the 9th is blocked.
+4. Add 2 envelopes on Free, verify the 3rd is blocked.
+5. Use Can I Buy This 3 times on Free, verify the 4th is blocked.
+6. Activate Pro mock, verify limits unlock.
+7. Activate Plus mock, verify Plus features unlock.
+8. Reset data, verify onboarding starts again.
